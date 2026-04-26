@@ -15,3 +15,7 @@
 	path = node
 	url = https://github.com/joshuafried/node
 	branch = gc-freeze
+[submodule "firecracker"]
+	path = firecracker
+	url = https://github.com/bencw12/firecracker
+	branch = faasnap
