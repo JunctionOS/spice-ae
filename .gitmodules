@@ -2,3 +2,16 @@
 	path = jifpager
 	url = git@github.com:bencw12/jifpager.git
 	branch = stable
+[submodule "junction"]
+	path = junction
+	url = https://github.com/bencw12/junction
+[submodule "jiftools"]
+	path = jiftools
+	url = https://github.com/bencw12/jiftools
+[submodule "criu"]
+	path = criu
+	url = git@github.com:bencw12/criu
+[submodule "node"]
+	path = node
+	url = https://github.com/joshuafried/node
+	branch = gc-freeze
