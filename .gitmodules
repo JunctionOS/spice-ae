@@ -1,0 +1,4 @@
+[submodule "jifpager"]
+	path = jifpager
+	url = git@github.com:bencw12/jifpager.git
+	branch = stable
