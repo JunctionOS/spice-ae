@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
+dependencies {
+    implementation 'org.json:json:20240303'
+    implementation 'io.minio:minio:8.5.14'
+}
+
+task printDeps {
+    def depsFile = file("deps.out")
+    def depsString = ""
+    sourceSets.main.runtimeClasspath.each { file ->
+        depsString += file
+        depsString += ":"
+    }
+    depsFile.text = depsString.substring(0, depsString.length() - 1)
+}
