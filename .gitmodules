@@ -19,3 +19,10 @@
 	path = firecracker
 	url = https://github.com/bencw12/firecracker
 	branch = faasnap
+[submodule "faasnap-kernel"]
+	path = faasnap-kernel
+	url = https://github.com/bencw12/faasnap-kernel
+	branch = faasnap-sanpage
+[submodule "faasnap"]
+	path = faasnap
+	url = https://github.com/joshuafried/faasnap
