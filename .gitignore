@@ -1,3 +1,5 @@
 bin
 .gradle
 functions/java/*/build
+*/__pycache__
+results
