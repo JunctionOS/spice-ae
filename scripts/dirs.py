@@ -24,3 +24,5 @@ NODE_BIN = f"{ROOT_DIR}/bin/bin/node"
 NODE_PATH = (
     f"{ROOT_DIR}/bin/node_modules:{ROOT_DIR}/bin/node_modules_addon:{FUNCTIONS}/node"
 )
+CRIU = f"{ROOT_DIR}/criu/criu/criu"
+BLOCK_IO_URING = f"{ROOT_DIR}/criu/block_io_uring.so"

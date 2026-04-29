@@ -46,5 +46,35 @@ parser.add_argument(
     default=False,
     help="flush cpu caches when measuring warm invocation times",
 )
+parser.add_argument(
+    "--criu-eager",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+    help="run CRIU eager mode (optionally with lazy pages)",
+)
+parser.add_argument(
+    "--no-lazy-pages",
+    action="store_true",
+    default=False,
+    help="disable CRIU lazy pages when --criu-eager",
+)
+parser.add_argument(
+    "--criu-mmap-only",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+    help="restore memory with mmap only, disabling preadv in CRIU",
+)
+parser.add_argument(
+    "--criu-no-cow",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+    help="disable CoW by mapping the snapshot file shared in CRIU",
+)
+parser.add_argument(
+    "--criu-strace",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+    help="run CRIU restore under strace",
+)
 
 ARGS = parser.parse_args()

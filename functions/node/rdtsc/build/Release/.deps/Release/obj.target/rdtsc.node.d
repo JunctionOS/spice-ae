@@ -1,0 +1,1 @@
+cmd_Release/obj.target/rdtsc.node := g++ -o Release/obj.target/rdtsc.node -shared -pthread -rdynamic -m64  -Wl,-soname=rdtsc.node -Wl,--start-group Release/obj.target/rdtsc/rdtsc.o -Wl,--end-group -lnode

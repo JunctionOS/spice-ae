@@ -1,0 +1,345 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import os
+
+import numpy as np
+from matplotlib import pyplot as plt
+from parsing import (
+    BLINK_TAG,
+    CRIU_CONFIGS,
+    parse_blink_logs,
+    parse_criu_logs,
+    parse_faasnap_logs,
+)
+
+FUNC_LABEL_MAP = {
+    "python_helloworld": "hello",
+    "python_pyaes": "pyaes",
+    "java_matmul": "mtml",
+    "python_chameleon": "html",
+    "python_image_rotate_s3": "img",
+    "python_json_serdes_s3": "json",
+    "node_json_serdes_s3": "json",
+    "python_lr_serving": "lr",
+    "python_rnn_serving": "rnn",
+    "python_cnn_serving": "cnn",
+    "node_image_rotate_s3": "img",
+    "python_video_processing_s3": "video",
+    "java_image_rotate_s3": "img",
+}
+
+
+def get_label(f):
+    return FUNC_LABEL_MAP.get(f)
+
+
+annotations = []
+seen = set()
+
+
+def get_lbl(label):
+    if label in seen:
+        return None
+    seen.add(label)
+    return {
+        "function": "Function",
+        "metadata": "Cereal restore",
+        "fs": "MemFS restore",
+        "data": "VMA restore",
+        "restore": "Restore time",
+        "vmm": "Load VMM",
+    }.get(label, label)
+
+
+COLORS = {
+    "function": "tab:blue",
+    "restore": "tab:red",
+    "Blink": "darkorange",
+    "REAP*": "crimson",
+    "FaaSnap*": "tab:brown",
+    "CRIU*": "violet",
+    "Warm": "dodgerblue",
+}
+
+HATCHES = {
+    "REAP*": "//",
+    "FaaSnap*": "\\\\",
+    "Blink": "xx",
+    "CRIU*": "oo",
+    "Warm": "",
+}
+
+
+def plot_one_system(ax, x, d, title, split=None):
+    width = 0.2
+    b = 0
+    for v, _ in d:
+        b += v
+
+    val = b / 1000
+    target_axes = [ax]
+    if split is not None:
+        target_axes.append(split)
+
+    for a in target_axes:
+        a.bar(
+            x,
+            val,
+            width=width,
+            color=COLORS.get(title),
+            label=get_lbl(title),
+            hatch=HATCHES[title],
+            edgecolor="black",
+        )
+        if title != "Warm":
+            a.bar(
+                x,
+                d[1][0] / 1000,
+                width=width,
+                color=COLORS.get(title),
+                hatch=None,
+                edgecolor="black",
+            )
+
+    if title in ("Blink", "Warm"):
+        text_str = str(int(val)) if int(val) > 1 else f"{val:.1f}"
+        target = split if split is not None else ax
+        text = target.text(
+            x * 1.01,
+            val,
+            text_str,
+            ha="center",
+            va="bottom",
+            fontsize=10,
+            rotation=50,
+        )
+        annotations.append(text)
+
+    return val
+
+
+FUNCTIONS = [
+    "python_helloworld",
+    "python_pyaes",
+    "python_chameleon",
+    "python_image_rotate_s3",
+    "python_json_serdes_s3",
+    "python_lr_serving",
+    "python_rnn_serving",
+    "python_cnn_serving",
+    "python_video_processing_s3",
+    "node_json_serdes_s3",
+    "node_image_rotate_s3",
+    "java_matmul",
+    "java_image_rotate_s3",
+]
+
+# Functions plotted on the secondary (right) axis
+SECONDARY = {
+    "python_video_processing_s3",
+    "python_lr_training_s3",
+    "java_image_rotate_s3",
+}
+
+
+def build_stack(key, blink_data, faasnap_data, criu_data):
+    fdata = faasnap_data.get("faasnap", {}).get(key)
+    rdata = faasnap_data.get("reap", {}).get(key)
+    bdata = blink_data.get(key, {}).get(BLINK_TAG)
+
+    def faasnap_stack(s):
+        if not s:
+            return [(0, "function"), (0, "restore")]
+        vmm = s["vm_dial"] + s["request_load_snapshot"] + s["vm_resume"]
+        return [(s["invoke"], "function"), (vmm, "restore")]
+
+    def criu_stack(configs):
+        if not configs:
+            return [(0, "function"), (0, "restore")]
+        for c in CRIU_CONFIGS:
+            entry = configs.get(c)
+            if not entry:
+                continue
+            iter_us = entry.get("post_resume_iter_us") or 0
+            restore = entry.get("restore_us") or 0
+            if iter_us or restore:
+                return [(iter_us, "function"), (restore, "restore")]
+        return [(0, "function"), (0, "restore")]
+
+    if bdata:
+        blink = [
+            (bdata["cold_first_iter"], "function"),
+            (
+                bdata["metadata_restore"] + bdata["fs_restore"] + bdata["data_restore"],
+                "restore",
+            ),
+        ]
+        warm = [(bdata["uncached_iter"], "function")]
+    else:
+        blink = [(0, "function"), (0, "restore")]
+        warm = [(0, "function")]
+
+    return (
+        key,
+        faasnap_stack(fdata),
+        faasnap_stack(rdata),
+        criu_stack(criu_data.get(key)),
+        blink,
+        warm,
+    )
+
+
+def plot_comparison(result_dir, data):
+    fig = plt.figure(figsize=(12, 3))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1, 2], width_ratios=[11, 2], hspace=0.1)
+
+    ax1 = fig.add_subplot(gs[1, 0])
+    ax3 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[:, 1])
+
+    ax3.spines.bottom.set_visible(False)
+    ax1.spines.top.set_visible(False)
+    ax3.xaxis.tick_top()
+    ax3.tick_params(labeltop=False)
+    ax1.xaxis.tick_bottom()
+    ax2.xaxis.tick_bottom()
+
+    fig.subplots_adjust(left=0.05, right=1.0)
+
+    blink_data = data.get("blink", {})
+    faasnap_data = data.get("faasnap", {})
+    criu_data = data.get("criu", {})
+
+    stacks = [build_stack(k, blink_data, faasnap_data, criu_data) for k in FUNCTIONS]
+
+    width = 0.2
+    primary_heights = []
+    secondary_heights = []
+    data_copy = {}
+
+    for is_secondary, ax, split in [(False, ax1, ax3), (True, ax2, None)]:
+        x_coords = []
+        x_labels = []
+        x = 0
+
+        for workload, faasnap, reap, criu, blink, warm in stacks:
+            in_secondary = workload in SECONDARY
+            if is_secondary != in_secondary:
+                continue
+
+            label = get_label(workload) or workload
+            data_copy[label] = {
+                "faasnap": int(sum(v for v, _ in faasnap)),
+                "reap": int(sum(v for v, _ in reap)),
+                "criu": int(sum(v for v, _ in criu)),
+                "blink": int(sum(v for v, _ in blink)),
+                "warm": int(sum(v for v, _ in warm)),
+            }
+
+            systems = [
+                ("FaaSnap*", faasnap),
+                ("REAP*", reap),
+                ("CRIU*", criu),
+                ("Blink", blink),
+                ("Warm", warm),
+            ]
+            for sys_label, stack in systems:
+                bottom = plot_one_system(ax, x, stack, sys_label, split=split)
+                if is_secondary:
+                    secondary_heights.append(bottom)
+                else:
+                    primary_heights.append(bottom)
+                x += width + width / 6
+
+            x_coords.append(x - len(systems) * (width + width / 6) + 1.5 * width)
+            x_labels.append(label)
+            x += width * 2
+
+        x_labels = [x.replace("_", " ").replace("s3", "") for x in x_labels]
+        ax.set_xticks(x_coords, x_labels, rotation=15, ha="center")
+
+    ax3.legend(loc="upper left", ncol=7, bbox_to_anchor=(0, 1), frameon=False)
+    split_y = 60
+    primary_top = max(primary_heights, default=1) * 1.25
+    ax3.set_ylim((split_y, primary_top))
+    ax1.set_ylim((0, split_y))
+    if secondary_heights:
+        ax2.set_ylim((0, max(secondary_heights) * 1.15))
+    ax1.set_ylabel("Time (ms)")
+    ax1.tick_params(axis="x", which="both", length=0)
+    ax2.tick_params(axis="x", which="both", length=0)
+    ax3.tick_params(axis="x", which="both", length=0)
+
+    for a in annotations:
+        if a.get_position()[1] < split_y:
+            ax1.text(
+                a._x,
+                a._y,
+                a.get_text(),
+                ha="center",
+                va="bottom",
+                fontsize=10,
+                rotation=45,
+            )
+            a.remove()
+
+    d_marker = 0.5
+    kwargs = dict(
+        marker=[(-1, -d_marker), (1, d_marker)],
+        markersize=12,
+        linestyle="none",
+        color="k",
+        mec="k",
+        mew=1,
+        clip_on=False,
+    )
+    ax3.plot([0, 1], [0, 0], transform=ax3.transAxes, **kwargs)
+    ax1.plot([0, 1], [1, 1], transform=ax1.transAxes, **kwargs)
+
+    fig.subplots_adjust(hspace=0.05, wspace=0.1, bottom=0.17, right=0.99, top=0.99)
+
+    out_path = os.path.join(result_dir, "latency.pdf")
+    plt.savefig(out_path, transparent=True)
+    print(f"wrote {out_path}")
+
+    with open(os.path.join(result_dir, "e2e.json"), "w") as f:
+        json.dump(data_copy, f, indent=4)
+
+    for fn, vals in data_copy.items():
+        if vals["faasnap"] and vals["blink"]:
+            speedup = 100.0 * (vals["faasnap"] - vals["blink"]) / vals["faasnap"]
+            print(f"{fn}: blink {speedup:.1f}% faster than faasnap")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Plot Blink vs FaaSnap e2e latency")
+    parser.add_argument("dirs", nargs="+", help="result directories to plot")
+    parser.add_argument(
+        "--blink-log",
+        default="restore_images",
+        help="prefix of blink restore log files inside each result dir",
+    )
+    parser.add_argument(
+        "--faasnap-subdir",
+        default=".",
+        help="subdirectory under each result dir holding faasnap/reap runs",
+    )
+    parser.add_argument(
+        "--criu-subdir",
+        default=".",
+        help="subdirectory under each result dir holding CRIU runs",
+    )
+    args = parser.parse_args()
+
+    for d in args.dirs:
+        data = {
+            "blink": parse_blink_logs(d, log_name=args.blink_log),
+            "faasnap": parse_faasnap_logs(os.path.join(d, args.faasnap_subdir)),
+            "criu": parse_criu_logs(os.path.join(d, args.criu_subdir)),
+        }
+        plot_comparison(d, data)
+
+
+if __name__ == "__main__":
+    main()

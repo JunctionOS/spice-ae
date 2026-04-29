@@ -16,7 +16,7 @@ mkdir -p ${ROOT_DIR}/bin/
 build_python() {
     if ! [ -e $PYTHON ]; then
         python3 -m venv ${VENV_DIR}
-        ${VENV_DIR}/bin/pip install chameleon pillow numpy pyaes six torch==2.6.0 torchvision opencv-python scikit-learn pandas tensorflow grpcio grpcio-tools minio keras-preprocessing keras-applications psutil matplotlib
+        ${VENV_DIR}/bin/pip install chameleon pillow numpy pyaes six torch==2.6.0 torchvision opencv-python scikit-learn pandas tensorflow grpcio grpcio-tools minio keras-preprocessing keras-applications psutil matplotlib rdtsc
     fi
 }
 
