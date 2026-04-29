@@ -3,3 +3,4 @@ bin
 functions/java/*/build
 */__pycache__
 results
+*/deps.out
