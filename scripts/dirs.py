@@ -14,3 +14,13 @@ MINIO_DATA_PATH = f"{ROOT_DIR}/minio_data"
 PATH_TO_FBENCH = f"{ROOT_DIR}/functions/data/"
 RESULT_DIR = f"{ROOT_DIR}/results"
 RESULT_LINK = f"{ROOT_DIR}/results/run.recent"
+JUNCTION_DIR = f"{ROOT_DIR}/junction"
+CALADAN_DIR = f"{JUNCTION_DIR}/lib/caladan"
+JRUN = f"{JUNCTION_DIR}/build/junction/junction_run"
+JIFTOOL = f"{ROOT_DIR}/jiftools/target/release/jiftool"
+READJIF = f"{ROOT_DIR}/jiftools/target/release/readjif"
+JINSTALL = f"{JUNCTION_DIR}/install"
+NODE_BIN = f"{ROOT_DIR}/bin/bin/node"
+NODE_PATH = (
+    f"{ROOT_DIR}/bin/node_modules:{ROOT_DIR}/bin/node_modules_addon:{FUNCTIONS}/node"
+)

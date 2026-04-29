@@ -34,5 +34,17 @@ parser.add_argument(
     default=True,
     help="use the chroot'ed filesystem",
 )
+parser.add_argument(
+    "--redo-snapshot",
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help="regenerate the snapshots",
+)
+parser.add_argument(
+    "--cold-uarch",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+    help="flush cpu caches when measuring warm invocation times",
+)
 
 ARGS = parser.parse_args()

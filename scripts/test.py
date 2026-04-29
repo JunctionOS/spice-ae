@@ -11,7 +11,6 @@ class Test:
         name: str,
         cmd: str,
         arg_map,
-        new_version_fn=lambda x: x,
         env="",
         s3=False,
         do_second_apps=True,
@@ -21,7 +20,7 @@ class Test:
         return a list of Tests
         """
         return [
-            cls(lang, name, cmd, args, arg_name, new_version_fn, env=env)
+            cls(lang, name, cmd, args, arg_name, env=env)
             for arg_name, args in arg_map.items()
         ]
 
@@ -33,15 +32,13 @@ class Test:
         args: str,
         arg_name: str = "",
         env: str = "",
-        new_version_fn=lambda x: x,
         s3=False,
         do_second_apps=True,
         **eargs,
     ):
         self.lang = lang
         self.name = name
-        self.raw_cmd = cmd
-        self.cmd = new_version_fn(cmd)
+        self.cmd = cmd
         self.args = args
         self.stop_count = 2 if lang == "java" else 1
         self.arg_name = arg_name
