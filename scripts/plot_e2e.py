@@ -190,6 +190,38 @@ def build_stack(key, blink_data, faasnap_data, criu_data):
     )
 
 
+def merge_lang_groups(spans):
+    """Merge consecutive (lang, lo, hi) spans into one entry per language run."""
+    out = []
+    for lang, lo, hi in spans:
+        if out and out[-1][0] == lang:
+            out[-1] = (lang, out[-1][1], hi)
+        else:
+            out.append([lang, lo, hi])
+    return [tuple(x) for x in out]
+
+
+def draw_lang_brackets(ax, spans, line_y, label_y, width, lw=1):
+    """Draw a horizontal bracket below `ax` for each language group with its label."""
+    for lang, lo, hi in merge_lang_groups(spans):
+        ax.plot(
+            [lo - width / 2, hi + width / 2],
+            [line_y, line_y],
+            transform=ax.get_xaxis_transform(),
+            color="black",
+            clip_on=False,
+            lw=lw,
+        )
+        ax.text(
+            (lo + hi) / 2,
+            label_y,
+            lang.capitalize(),
+            transform=ax.get_xaxis_transform(),
+            fontsize=9,
+            ha="center",
+        )
+
+
 def plot_comparison(result_dir, data):
     fig = plt.figure(figsize=(12, 3))
     gs = fig.add_gridspec(2, 2, height_ratios=[1, 2], width_ratios=[11, 2], hspace=0.1)
@@ -216,11 +248,14 @@ def plot_comparison(result_dir, data):
     width = 0.2
     primary_heights = []
     secondary_heights = []
+    primary_lang_spans = []
+    secondary_lang_spans = []
     data_copy = {}
 
     for is_secondary, ax, split in [(False, ax1, ax3), (True, ax2, None)]:
         x_coords = []
         x_labels = []
+        lang_spans = secondary_lang_spans if is_secondary else primary_lang_spans
         x = 0
 
         for workload, faasnap, reap, criu, blink, warm in stacks:
@@ -244,6 +279,7 @@ def plot_comparison(result_dir, data):
                 ("Blink", blink),
                 ("Warm", warm),
             ]
+            first_bar_x = x
             for sys_label, stack in systems:
                 bottom = plot_one_system(ax, x, stack, sys_label, split=split)
                 if is_secondary:
@@ -251,13 +287,15 @@ def plot_comparison(result_dir, data):
                 else:
                     primary_heights.append(bottom)
                 x += width + width / 6
+            last_bar_x = x - (width + width / 6)
 
             x_coords.append(x - len(systems) * (width + width / 6) + 1.5 * width)
             x_labels.append(label)
+            lang_spans.append((workload.split("_")[0], first_bar_x, last_bar_x))
             x += width * 2
 
         x_labels = [x.replace("_", " ").replace("s3", "") for x in x_labels]
-        ax.set_xticks(x_coords, x_labels, rotation=15, ha="center")
+        ax.set_xticks(x_coords, x_labels, rotation=0, ha="center")
 
     ax3.legend(loc="upper left", ncol=7, bbox_to_anchor=(0, 1), frameon=False)
     split_y = 60
@@ -297,7 +335,14 @@ def plot_comparison(result_dir, data):
     ax3.plot([0, 1], [0, 0], transform=ax3.transAxes, **kwargs)
     ax1.plot([0, 1], [1, 1], transform=ax1.transAxes, **kwargs)
 
-    fig.subplots_adjust(hspace=0.05, wspace=0.1, bottom=0.17, right=0.99, top=0.99)
+    draw_lang_brackets(
+        ax1, primary_lang_spans, line_y=-0.18, label_y=-0.29, width=width
+    )
+    draw_lang_brackets(
+        ax2, secondary_lang_spans, line_y=-0.11, label_y=-0.17, width=width, lw=1.2
+    )
+
+    fig.subplots_adjust(hspace=0.05, wspace=0.1, bottom=0.22, right=0.99, top=0.99)
 
     out_path = os.path.join(result_dir, "latency.pdf")
     plt.savefig(out_path, transparent=True)
