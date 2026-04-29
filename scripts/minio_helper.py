@@ -11,7 +11,7 @@ from util import run, run_async
 MINIO = f"{BIN_DIR}/minio"
 MINIO_BUCKET = "mybucket"
 MINIO_MASK = "255.255.0.0"
-MINIO_IP = "192.168.1.5"
+MINIO_IP = "192.168.120.1"
 
 
 def kill_minio_server():
