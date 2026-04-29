@@ -392,7 +392,7 @@ class NodeFBenchTest(BlinkTest):
         super().__init__(
             "node",
             name,
-            f"{NODE_BIN} --expose-gc --no-incremental-marking --no-memory-reducer --max-semi-space-size=256 --max-old-space-size=8192 --initial-old-space-size=2048 --single-threaded --allow-natives-syntax --no-use-idle-notification --interrupt-budget=1024 --no-flush-bytecode {FUNCTIONS}/node/run.js {name}",
+            f"{NODE_BIN} --expose-gc --no-flush-bytecode {FUNCTIONS}/node/run.js {name}",
             FUNCTION_ARGS[name],
             s3=s3,
             env=f"NODE_PATH={NODE_PATH}",
@@ -414,6 +414,7 @@ TESTS = [
     PyFBenchTest("lr_training_s3", s3=True),
     PyFBenchTest("video_processing_s3", s3=True),
     JavaFBenchTest("matmul"),
-    JavaFBenchTest("image_rotate_s3"),
+    JavaFBenchTest("image_rotate_s3", s3=True),
     NodeFBenchTest("json_serdes_s3", s3=True),
+    NodeFBenchTest("image_rotate_s3", s3=True),
 ]
