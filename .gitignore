@@ -6,3 +6,4 @@ results
 functions/java/*/deps.out
 chroot
 minio_data
+**/*.pdf
