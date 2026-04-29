@@ -3,6 +3,6 @@ bin
 functions/java/*/build
 */__pycache__
 results
-*/deps.out
+functions/java/*/deps.out
 chroot
 minio_data
