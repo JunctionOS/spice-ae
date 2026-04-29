@@ -16,7 +16,6 @@ class FaaSnapTest(Test):
             name,
             None,  # cmd
             arg_map,
-            new_version_fn=lambda x: x,
             s3=s3,
             do_second_apps=False,
         )
