@@ -36,7 +36,7 @@ def build_faasnap_config(tests):
     for test in tests:
         config["function"].append(test.id())
         fargs = json.loads(FUNCTION_ARGS[test.name])
-        fargs["disable_sanpage"] = True
+        fargs["disable_sanpage"] = False
         alt_args = fargs
 
         if test.s3:
@@ -92,6 +92,9 @@ def build_faasnap_config(tests):
 def main(tests):
     build_faasnap_config(tests)
     curdir = os.getcwd()
+
+    run("sudo rmmod kvm-intel; sudo rmmod kvm")
+    run("sudo modprobe kvm nx_huge_pages=never; sudo modprobe kvm-intel")
 
     os.chdir(FAASNAP_DIR)
     run("bash ./clean.sh")
