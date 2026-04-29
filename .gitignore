@@ -4,3 +4,5 @@ functions/java/*/build
 */__pycache__
 results
 */deps.out
+chroot
+minio_data
