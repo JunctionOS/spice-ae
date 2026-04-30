@@ -7,7 +7,16 @@ import time
 from datetime import datetime
 
 from args import ARGS
-from dirs import BIN_DIR, CHROOT_DIR, FUNCTIONS, JINSTALL, JRUN, RESULT_DIR, SCRIPT_DIR
+from dirs import (
+    BIN_DIR,
+    CHROOT_DIR,
+    FUNCTIONS,
+    JINSTALL,
+    JRUN,
+    RESULT_DIR,
+    SCRIPT_DIR,
+    SNAPSHOT_DIR,
+)
 
 
 def is_running_as_root():
@@ -60,7 +69,7 @@ def setup_chroot():
 
     # clean old mounts
     kill_chroot()
-    run(f"{SCRIPT_DIR}/chroot_mount.sh")
+    run(f"SNAPSHOT_DIR={SNAPSHOT_DIR} {SCRIPT_DIR}/chroot_mount.sh")
 
     if jifpager_installed():
         st = os.stat("/dev/jif_pager")

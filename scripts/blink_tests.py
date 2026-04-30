@@ -15,6 +15,7 @@ from dirs import (
     NODE_BIN,
     NODE_PATH,
     READJIF,
+    SNAPSHOT_DIR,
 )
 from func_args import FUNCTION_ARGS
 from ip_alloc import IPAllocator, addr_to_str
@@ -119,7 +120,10 @@ class BlinkTest(Test):
         if with_chroot and ARGS.use_chroot:
             return f"{CHROOT_DIR}/tmp/{func_id}"
 
-        return f"/tmp/{func_id}"
+        if ARGS.use_chroot:
+            return f"/tmp/{func_id}"
+
+        return f"{SNAPSHOT_DIR}/{func_id}"
 
     def run(self, junction_args, cmd, log, result_dir):
         ip_alloc = IPAllocator()

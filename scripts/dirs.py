@@ -5,7 +5,15 @@ ROOT_DIR = os.path.split(SCRIPT_DIR)[0]
 BIN_DIR = f"{ROOT_DIR}/bin"
 FUNCTIONS = f"{ROOT_DIR}/functions"
 FAASNAP_DIR = f"{ROOT_DIR}/faasnap"
-FAASNAP_SNAPSHOTS = f"{FAASNAP_DIR}/snapshots"
+
+SNAPSHOT_DIR = os.environ.get("SNAPSHOT_DIR", "/tmp")
+
+_faasnap_default = (
+    f"{SNAPSHOT_DIR}/faasnap"
+    if "SNAPSHOT_DIR" in os.environ
+    else f"{FAASNAP_DIR}/snapshots"
+)
+FAASNAP_SNAPSHOTS = os.environ.get("FAASNAP_SNAPSHOTS", _faasnap_default)
 FAASNAP_LINUX = f"{BIN_DIR}/faasnap-linux.bin"
 FAASNAP_ROOTFS = f"{FAASNAP_DIR}/rootfs/debian-rootfs.ext4"
 FAASNAP_FC = f"{BIN_DIR}/faasnap-fc"
