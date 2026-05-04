@@ -67,9 +67,17 @@ def setup_chroot():
         f"sudo mkdir -p {CHROOT_DIR}/{BIN_DIR} {CHROOT_DIR}/{FUNCTIONS} {CHROOT_DIR}/{JINSTALL}"
     )
 
+    if not os.access(SNAPSHOT_DIR, os.R_OK | os.W_OK):
+        print(
+            f"!!!!!! SNAPSHOT_DIR={SNAPSHOT_DIR} lacking r/w permissions, aborting !!!!!!"
+        )
+        exit(0)
+
+    run(f"touch {SNAPSHOT_DIR}/.perm_test")
+
     # clean old mounts
     kill_chroot()
-    run(f"SNAPSHOT_DIR={SNAPSHOT_DIR} {SCRIPT_DIR}/chroot_mount.sh")
+    print(run(f"{SCRIPT_DIR}/chroot_mount.sh").decode("utf-8"))
 
     if jifpager_installed():
         st = os.stat("/dev/jif_pager")
