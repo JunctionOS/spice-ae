@@ -90,6 +90,7 @@ def build_faasnap_config(tests):
 
 
 def main(tests):
+    os.makedirs(FAASNAP_SNAPSHOTS, exist_ok=True)
     build_faasnap_config(tests)
     curdir = os.getcwd()
 

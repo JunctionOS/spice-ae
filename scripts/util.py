@@ -9,6 +9,7 @@ from datetime import datetime
 from args import ARGS
 from dirs import (
     BIN_DIR,
+    BLINK_SNAPSHOTS,
     CHROOT_DIR,
     FUNCTIONS,
     JINSTALL,
@@ -73,7 +74,14 @@ def setup_chroot():
         )
         exit(0)
 
-    run(f"touch {SNAPSHOT_DIR}/.perm_test")
+    os.makedirs(BLINK_SNAPSHOTS, exist_ok=True)
+    if not os.access(BLINK_SNAPSHOTS, os.R_OK | os.W_OK):
+        print(
+            f"!!!!!! BLINK_SNAPSHOTS={BLINK_SNAPSHOTS} lacking r/w permissions, aborting !!!!!!"
+        )
+        exit(0)
+
+    run(f"touch {BLINK_SNAPSHOTS}/.perm_test")
 
     # clean old mounts
     kill_chroot()

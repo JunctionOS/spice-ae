@@ -7,6 +7,7 @@ import psutil
 from args import ARGS
 from dirs import (
     BIN_DIR,
+    BLINK_SNAPSHOTS,
     CALADAN_DIR,
     CHROOT_DIR,
     FUNCTIONS,
@@ -15,7 +16,6 @@ from dirs import (
     NODE_BIN,
     NODE_PATH,
     READJIF,
-    SNAPSHOT_DIR,
 )
 from func_args import FUNCTION_ARGS
 from ip_alloc import IPAllocator, addr_to_str
@@ -123,7 +123,7 @@ class BlinkTest(Test):
         if ARGS.use_chroot:
             return f"/tmp/{func_id}"
 
-        return f"{SNAPSHOT_DIR}/{func_id}"
+        return f"{BLINK_SNAPSHOTS}/{func_id}"
 
     def run(self, junction_args, cmd, log, result_dir):
         ip_alloc = IPAllocator()

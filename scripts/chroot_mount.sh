@@ -8,7 +8,8 @@ JUNCTION_DIR=${ROOT_DIR}/junction
 CHROOT_DIR=${ROOT_DIR}/chroot
 MOUNT_POINTS=("${ROOT_DIR}/functions" "${JUNCTION_DIR}/install" "${ROOT_DIR}/bin")
 
-SNAPSHOT_DIR=${SNAPSHOT_DIR:-${ROOT_DIR}/chroot/tmp}
+SNAPSHOT_DIR=${SNAPSHOT_DIR:-${ROOT_DIR}/snapshots}
+BLINK_SNAPSHOTS=${BLINK_SNAPSHOTS:-${SNAPSHOT_DIR}/blink}
 
 mount_bind() {
   for mnt in "${MOUNT_POINTS[@]}"; do
@@ -22,9 +23,9 @@ mount_bind() {
   done
 
   if ! mountpoint -q "$CHROOT_DIR/tmp"; then
-    echo "Mounting snapshot dir $SNAPSHOT_DIR -> $CHROOT_DIR/tmp..."
-    sudo mkdir -p "$CHROOT_DIR/tmp" "$SNAPSHOT_DIR"
-    sudo mount --bind "$SNAPSHOT_DIR" "$CHROOT_DIR/tmp"
+    echo "Mounting blink snapshot dir $BLINK_SNAPSHOTS -> $CHROOT_DIR/tmp..."
+    sudo mkdir -p "$CHROOT_DIR/tmp" "$BLINK_SNAPSHOTS"
+    sudo mount --bind "$BLINK_SNAPSHOTS" "$CHROOT_DIR/tmp"
   else
     echo "$CHROOT_DIR/tmp is already mounted."
   fi

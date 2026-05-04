@@ -8,6 +8,7 @@ from dirs import (
     BIN_DIR,
     BLOCK_IO_URING,
     CRIU,
+    CRIU_SNAPSHOTS,
     FUNCTIONS,
     NODE_PATH,
     ROOT_DIR,
@@ -45,7 +46,7 @@ class CRIUTest(Test):
     def run(
         self, result_dir, lazy_pages=False, mmap_only=False, no_cow=False, strace=False
     ):
-        run(f"mkdir -p {result_dir}/images")
+        run(f"mkdir -p {CRIU_SNAPSHOTS}")
         run(f"mkdir -p {result_dir}/output")
 
         log = self._suffix(lazy_pages, mmap_only, no_cow, strace)
@@ -78,7 +79,7 @@ class CRIUTest(Test):
             no_cow=no_cow,
             strace=strace,
         )
-        image_dir = f"{result_dir}/images/{self.id()}"
+        image_dir = f"{CRIU_SNAPSHOTS}/{self.id()}"
         run(f"mkdir -p {image_dir}")
         run(
             f"sudo -E {CRIU} dump --tcp-established -t {pid} -vvvv "
@@ -98,7 +99,7 @@ class CRIUTest(Test):
         no_cow=False,
         strace=False,
     ):
-        image_dir = f"{result_dir}/images/{self.id()}"
+        image_dir = f"{CRIU_SNAPSHOTS}/{self.id()}"
         pidfile = f"{image_dir}/script_pidfile"
         run(f"rm -rf {pidfile}")
 
@@ -141,9 +142,9 @@ class CRIUTest(Test):
 
         run("sudo killall criu 2> /dev/null; true")
 
-        run(f"sudo chmod 444 {result_dir}/images/{self.id()}/restore{log}.log")
+        run(f"sudo chmod 444 {image_dir}/restore{log}.log")
         run(
-            f"cp {result_dir}/images/{self.id()}/restore{log}.log "
+            f"cp {image_dir}/restore{log}.log "
             f"{result_dir}/output/{self.id()}_restore{log}.log"
         )
 

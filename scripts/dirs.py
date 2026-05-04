@@ -6,14 +6,11 @@ BIN_DIR = f"{ROOT_DIR}/bin"
 FUNCTIONS = f"{ROOT_DIR}/functions"
 FAASNAP_DIR = f"{ROOT_DIR}/faasnap"
 
-SNAPSHOT_DIR = os.environ.get("SNAPSHOT_DIR", "/tmp")
+SNAPSHOT_DIR = os.environ.get("SNAPSHOT_DIR", f"{ROOT_DIR}/snapshots")
 
-_faasnap_default = (
-    f"{SNAPSHOT_DIR}/faasnap"
-    if "SNAPSHOT_DIR" in os.environ
-    else f"{FAASNAP_DIR}/snapshots"
-)
-FAASNAP_SNAPSHOTS = os.environ.get("FAASNAP_SNAPSHOTS", _faasnap_default)
+BLINK_SNAPSHOTS = os.environ.get("BLINK_SNAPSHOTS", f"{SNAPSHOT_DIR}/blink")
+FAASNAP_SNAPSHOTS = os.environ.get("FAASNAP_SNAPSHOTS", f"{SNAPSHOT_DIR}/faasnap")
+CRIU_SNAPSHOTS = os.environ.get("CRIU_SNAPSHOTS", f"{SNAPSHOT_DIR}/criu")
 FAASNAP_LINUX = f"{BIN_DIR}/faasnap-linux.bin"
 FAASNAP_ROOTFS = f"{FAASNAP_DIR}/rootfs/debian-rootfs.ext4"
 FAASNAP_FC = f"{BIN_DIR}/faasnap-fc"

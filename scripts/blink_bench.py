@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import atexit
+import os
 
 from args import ARGS
 from blink_tests import TESTS, kill_iok
+from dirs import BLINK_SNAPSHOTS, SNAPSHOT_DIR
 from test import compile_tests
 from util import get_result_dir, is_running_as_root, setup_chroot
 
@@ -37,5 +39,15 @@ if __name__ == "__main__":
 
     atexit.register(kill_iok)
     tests = compile_tests(TESTS)
+
+    for d in (SNAPSHOT_DIR, BLINK_SNAPSHOTS):
+        try:
+            os.makedirs(d, exist_ok=True)
+        except PermissionError:
+            print(
+                f"!!!!!! cannot create {d} without root; create it or fix perms !!!!!!"
+            )
+            exit(1)
+
     setup_chroot()
     main(tests)
