@@ -32,12 +32,12 @@ blink-ae/
 └── scripts                 # Experiment and util scripts
 ```
 
-Blink's implementation is split between the `junction` and `jifpager` submodules. Junction [1] is
+Blink's implementation is split between the `junction` and `jifpager` submodules. Junction [^1] is
 a libOS container system responsible for generating snapshots and invoking 
 functions from a snapshot image. `jifpager` is a Linux 6.5.0 kernel module 
 containing the implementation of the the kernel-space snapshot loader.
 
-The paper compares Blink to CRIU [2], REAP [3] and FaaSnap [4] which are contained in
+The paper compares Blink to CRIU [^2], REAP [^3] and FaaSnap [^4] which are contained in
 this repo as submodules.
 
 # Artifact Evaluation Guide
@@ -82,3 +82,10 @@ To run tests for invididual systems, run
 
 # Claims 
 The data produced from `./scripts/run_all.py` re-creates the results presented in Figure 10 of the paper comparing end-to-end latency of the systems evaluated. The expectation is that Blink has significantly lower latency than FaaSnap, REAP, and CRIU and is close to the latency of a warm invocation. Because the SSD on the CloudLab node is slower than the one used in the paper, results will vary slightly but in our testing on the slower drive Blink's latencies are within 1-2ms of the numbers presented in the paper.
+
+# References
+
+[^1]: https://www.usenix.org/conference/nsdi24/presentation/fried
+[^2]: https://www.criu.org/Main_Page
+[^3]: https://dl.acm.org/doi/10.1145/3445814.3446714
+[^4]: https://dl.acm.org/doi/10.1145/3492321.3524270
