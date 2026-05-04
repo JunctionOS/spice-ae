@@ -110,6 +110,8 @@ def main(tests):
     subprocess.run(cmd, env=env)
     os.chdir(curdir)
 
+    run(f"sudo chown -R {os.getuid()}:{os.getgid()} {RESULT_DIR}")
+
 
 if __name__ == "__main__":
     tests = compile_tests(TESTS)
