@@ -68,16 +68,13 @@ To run tests for invididual systems, run
 ./scripts/blink_bench.py --name-filter <function name regex> --lang-filter <function language regex>
 
 # Run a set of functions with FaaSnap (results in results/faasnap.recent)
-./scripts/faasnap_bench.py --name-filter <function name regex>
- --lang-filter <function language regex> --do-faasnap
+./scripts/faasnap_bench.py --name-filter <function name regex> --lang-filter <function language regex> --do-faasnap
  
 # Run a set of functions with REAP (results in results/faasnap.recent)
-./scripts/faasnap_bench.py --name-filter <function name regex>
- --lang-filter <function language regex> --do-reap
+./scripts/faasnap_bench.py --name-filter <function name regex> --lang-filter <function language regex> --do-reap
  
 # Run a set of functions with CRIU (results in results/criu.recent)
-./scripts/criu_bench.py --name-filter <function name regex>
- --lang-filter <function language regex> --criu-mmap-only
+./scripts/criu_bench.py --name-filter <function name regex> --lang-filter <function language regex> --criu-mmap-only
 
 # plot_e2e.py will plot results for whichever systems/functions are available in <result dir>
  ./scripts/plot_e2e.py <result dir>
