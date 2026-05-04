@@ -31,3 +31,4 @@ NODE_PATH = (
 )
 CRIU = f"{ROOT_DIR}/criu/criu/criu"
 BLOCK_IO_URING = f"{ROOT_DIR}/criu/block_io_uring.so"
+JIFPAGER_DIR = f"{ROOT_DIR}/jifpager"

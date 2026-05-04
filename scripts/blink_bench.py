@@ -5,9 +5,15 @@ import os
 
 from args import ARGS
 from blink_tests import TESTS, kill_iok
-from dirs import BLINK_SNAPSHOTS, SNAPSHOT_DIR
+from dirs import BLINK_SNAPSHOTS, JIFPAGER_DIR, SNAPSHOT_DIR
 from test import compile_tests
-from util import get_result_dir, is_running_as_root, setup_chroot
+from util import (
+    get_result_dir,
+    is_running_as_root,
+    jifpager_installed,
+    run,
+    setup_chroot,
+)
 
 
 def run_microbenchmark(result_dir: str, tests):
@@ -48,6 +54,8 @@ if __name__ == "__main__":
                 f"!!!!!! cannot create {d} without root; create it or fix perms !!!!!!"
             )
             exit(1)
+
+    run(f"cd {JIFPAGER_DIR}; ./install.sh; cd ..")
 
     setup_chroot()
     main(tests)
