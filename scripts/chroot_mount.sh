@@ -6,11 +6,9 @@ SCRIPT_DIR=$(dirname $(readlink -f $0))
 ROOT_DIR=$(realpath ${SCRIPT_DIR}/../)
 JUNCTION_DIR=${ROOT_DIR}/junction
 CHROOT_DIR=${ROOT_DIR}/chroot
-# "${ROOT_DIR}/build-debug"
 MOUNT_POINTS=("${ROOT_DIR}/functions" "${JUNCTION_DIR}/install" "${ROOT_DIR}/bin")
 
-SNAPSHOT_DIR=${SNAPSHOT_DIR:-/tmp}
-SNAPSHOT_DIR=/mnt/snapshots
+SNAPSHOT_DIR=${SNAPSHOT_DIR:-${ROOT_DIR}/chroot/tmp}
 
 mount_bind() {
   for mnt in "${MOUNT_POINTS[@]}"; do
