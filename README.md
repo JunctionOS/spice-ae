@@ -57,6 +57,16 @@ sudo mkdir /mnt/unused-nvme0n1/snapshots; sudo chown $USER /mnt/unused-nvme0n1/s
 ```
 
 # Getting Started Instructions
+
+Building and running the artifact requires root privileges. The first
+step is to add yourself to the `docker` group and start a new session.
+
+```
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
 The following builds all systems/dependencies and runs a simple helloworld function as a minimal starting example. These instructions assume
 a snapshot directory has been created at `/mnt/unused-nvme0n1/snapshots`
 ```

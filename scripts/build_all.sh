@@ -27,7 +27,7 @@ sudo -E apt-get install -y \
     libbsd0 libbsd-dev libcap-dev libaio-dev python3-yaml \
     asciidoc xmlto libdrm-dev libgnutls28-dev libnftables-dev \
     iproute2 \
-    curl wget git
+    curl wget git docker.io
 
 # rust (needed for jiftools); install via rustup if missing
 if ! command -v cargo >/dev/null 2>&1; then
