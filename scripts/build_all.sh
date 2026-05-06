@@ -86,6 +86,7 @@ popd >/dev/null
 log "Building CRIU"
 pushd "$CRIU_DIR" >/dev/null
 make -j"$(nproc)"
+gcc -shared -fPIC -o block_io_uring.so block_iouring.c -lseccomp
 popd >/dev/null
 
 # ---------------------------------------------------------------- 7. functions
