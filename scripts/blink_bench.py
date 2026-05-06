@@ -56,6 +56,7 @@ if __name__ == "__main__":
             exit(1)
 
     run(f"cd {JIFPAGER_DIR}; ./install.sh; cd ..")
+    run(f"echo 256 | sudo tee /sys/kernel/jifpager/prefetch_sync_batch")
 
     setup_chroot()
     main(tests)
