@@ -26,7 +26,7 @@ sudo -E apt-get install -y \
     python3-protobuf libnet-dev libnl-3-dev libnl-route-3-dev \
     libbsd0 libbsd-dev libcap-dev libaio-dev python3-yaml \
     asciidoc xmlto libdrm-dev libgnutls28-dev libnftables-dev \
-    iproute2 \
+    iproute2 acl \
     curl wget git docker.io
 
 # rust (needed for jiftools); install via rustup if missing
