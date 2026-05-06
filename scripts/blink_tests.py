@@ -29,8 +29,11 @@ KERNEL_TRACE_RUNS = 20
 def get_allowed_cores():
     physical_cores = psutil.cpu_count(logical=False)
     # core 0 is often noisy with interrupts
-    # reserve cores 2 and 3 for prefetcher and page pool
-    return f"1,4-{physical_cores}"
+    # core 1 = iokerneld
+    # core 2 = page pool
+    # core 3 = minor prefetcher
+    # cores 4,5 = major prefetchers
+    return f"6-{physical_cores}"
 
 
 def run_iok(output_log):
@@ -178,21 +181,18 @@ class BlinkTest(Test):
         dropcache()
         last_ws_count = 0
         n_unchanged = 0
-        # for i in range(KERNEL_TRACE_RUNS):
-        i = 0
-        while n_unchanged < 5:
+        for i in range(KERNEL_TRACE_RUNS):
             self.jifpager_restore_shelf(
                 f"{output_log}_build_ord",
                 result_dir,
                 cold=True,
                 prefault=True,
-                minor_prefault=True,
+                minor_prefault=i % 2 == 0,
                 prefetch_direct=True,
                 use_page_pool=True,
                 cow=True,
                 trace=True,
             )
-            i += 1
             run(f"sudo cat /sys/kernel/debug/jifpager/mem_trace {path}.ord > /tmp/ord")
             run(f"sort -n /tmp/ord | sudo tee {path}.ord > /dev/null")
             self.add_access_trace(output_log)
