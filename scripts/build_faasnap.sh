@@ -33,13 +33,16 @@ cp -r ${FUNCTIONS_DIR}/python/* ${GUEST_DIR}/python
 cp -r ${FUNCTIONS_DIR}/java/* ${GUEST_DIR}/java
 cp -r ${FUNCTIONS_DIR}/data ${GUEST_DIR}/
 
-pushd ./rootfs
-make debian-rootfs.ext4
-sudo mount debian-rootfs.ext4 ./mountpoint
-sudo mkdir -p ./mountpoint/$FUNCTIONS_DIR
-sudo cp -r $FUNCTIONS_DIR/data ./mountpoint/$FUNCTIONS_DIR/
-sudo umount ./mountpoint
-popd
+sudo mkdir -p ${FAASNAP_ROOTFS}
+sudo chown ${USER} ${FAASNAP_ROOTFS}
+
+make -C ./rootfs debian-rootfs.ext4 OUTDIR=${FAASNAP_ROOTFS}
+
+sudo mount debian-rootfs.ext4 ${FAASNAP_ROOTFS}/mountpoint
+sudo mkdir -p ${FAASNAP_ROOTFS}/mountpoint/$FUNCTIONS_DIR
+sudo cp -r $FUNCTIONS_DIR/data ${FAASNAP_ROOTFS}/mountpoint/$FUNCTIONS_DIR/
+sudo umount ${FAASNAP_ROOTFS}/mountpoint
+
 popd
 
 # build faasnap guest kernel

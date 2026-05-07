@@ -7,11 +7,15 @@ ROOT_DIR=$(realpath "${SCRIPT_DIR}/../")
 BIN_DIR=${ROOT_DIR}/bin
 VENV_DIR=${BIN_DIR}/venv
 JUNCTION_DIR=${ROOT_DIR}/junction
+FAASNAP_DIR=${ROOT_DIR}/faasnap
 JIFTOOLS_DIR=${ROOT_DIR}/jiftools
 JIFPAGER_DIR=${ROOT_DIR}/jifpager
 CRIU_DIR=${ROOT_DIR}/criu
 CHROOT_DIR=${ROOT_DIR}/chroot
 
+FAASNAP_ROOTFS=${FAASNAP_ROOTFS:-${FAASNAP_DIR}/rootfs}
+
+export FAASNAP_ROOTFS=${FAASNAP_ROOTFS}
 export DEBIAN_FRONTEND=noninteractive
 
 log() { printf '\n\033[1;36m[build_all]\033[0m %s\n' "$*"; }
