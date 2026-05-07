@@ -31,7 +31,8 @@ sudo -E apt-get install -y \
     libbsd0 libbsd-dev libcap-dev libaio-dev python3-yaml \
     asciidoc xmlto libdrm-dev libgnutls28-dev libnftables-dev \
     iproute2 acl \
-    curl wget git docker.io debootstrap libseccomp-dev
+    curl wget git docker.io debootstrap libseccomp-dev python3-pip
+python3 -m pip install minio --break-system-packages
 
 # rust (needed for jiftools); install via rustup if missing
 if ! command -v cargo >/dev/null 2>&1; then
