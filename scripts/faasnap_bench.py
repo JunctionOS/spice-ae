@@ -20,6 +20,10 @@ from minio_helper import start_minio_server
 from test import compile_tests
 from util import run
 
+rootfs_path = os.environ.get("FAASNAP_ROOTFS")
+if rootfs_path is not None:
+    FAASNAP_ROOTFS = rootfs_path
+
 
 def build_faasnap_config(tests):
     f = open(f"{FAASNAP_DIR}/test-2inputs.json")
