@@ -48,12 +48,12 @@ Micron 7450 MAX NVMe SSD rated for
 sequential 128KB reads of up to 6800 MB/s (1M IOPS 4K random read). The SSD used in the paper
 was a Crucial T705 rated at 13600 MB/s (1.4M IOPS 4K random read).
 CloudLab partitions default to 64GB so the profile will format/mount any available SSD
-capacity for snapshot storage. The filesystems are mounted at, for example `/mnt/unused-nvme0n1` for
+capacity for snapshot storage. The filesystems are mounted at, for example `/mnt/unused-nvme1n1` for
 the remaining capacity of the first available NVMe SSD. Reviewers should create a directory for
 storing snapshots at one of these locations, e.g.
 
 ```
-sudo mkdir /mnt/unused-nvme0n1/snapshots; sudo chown $USER /mnt/unused-nvme0n1/snapshots
+sudo mkdir /mnt/unused-nvme1n1/snapshots; sudo chown $USER /mnt/unused-nvme1n1/snapshots
 ```
 
 # Getting Started Instructions
@@ -68,11 +68,18 @@ newgrp docker
 ```
 
 The following builds all systems/dependencies and runs a simple helloworld function as a minimal starting example. These instructions assume
-a snapshot directory has been created at `/mnt/unused-nvme0n1/snapshots`
+a snapshot directory has been created at `/mnt/unused-nvme1n1/snapshots`. The build takes ~30 minutes and requires ~70GB of disk space (not including snapshot files).
+
+> [!NOTE]
+> CloudLab rootfs partitions default to 64GB. To avoid running out of space, either run `sudo RESIZEROOT=128 /opt/setup-grow-rootfs.sh` to resize to 128GB, or
+> run `FAASNAP_ROOTFS=/mnt/unused-nvme1n1/ ./scripts/build_all.sh` to build the rootfs for FaaSnap/REAP guest VMs on the larger unused partition.
+
 ```
-./scripts/build_all.sh
+# setting FAASNAP_ROOTFS is optional, default location is ./faasnap/rootfs/debian-rootfs.ext4
+FAASNAP_ROOTFS=/mnt/unused-nvme1n1 ./scripts/build_all.sh
+
 # run only the helloworld python function, result plot placed in ./results/e2e.recent/latency.py
-SNAPSHOT_DIR=/mnt/unused-nvme0n1/snapshots ./scripts/run_all.py --name-filter helloworld
+SNAPSHOT_DIR=/mnt/unused-nvme1n1/snapshots ./scripts/run_all.py --name-filter helloworld
 ```
 
 # Detailed Instructions
@@ -82,16 +89,16 @@ To run tests for invididual systems, run
 
 ```
 # Run a set of functions with Blink (results in results/blink.recent)
-SNAPSHOT_DIR=/mnt/unused-nvme0n1/snapshots ./scripts/blink_bench.py --name-filter <function name regex> --lang-filter <function language regex>
+SNAPSHOT_DIR=/mnt/unused-nvme1n1/snapshots ./scripts/blink_bench.py --name-filter <function name regex> --lang-filter <function language regex>
 
 # Run a set of functions with FaaSnap (results in results/faasnap.recent)
-SNAPSHOT_DIR=/mnt/unused-nvme0n1/snapshots ./scripts/faasnap_bench.py --name-filter <function name regex> --lang-filter <function language regex> --do-faasnap
+SNAPSHOT_DIR=/mnt/unused-nvme1n1/snapshots ./scripts/faasnap_bench.py --name-filter <function name regex> --lang-filter <function language regex> --do-faasnap
  
 # Run a set of functions with REAP (results in results/faasnap.recent)
-SNAPSHOT_DIR=/mnt/unused-nvme0n1/snapshots ./scripts/faasnap_bench.py --name-filter <function name regex> --lang-filter <function language regex> --do-reap
+SNAPSHOT_DIR=/mnt/unused-nvme1n1/snapshots ./scripts/faasnap_bench.py --name-filter <function name regex> --lang-filter <function language regex> --do-reap
  
 # Run a set of functions with CRIU (results in results/criu.recent)
-SNAPSHOT_DIR=/mnt/unused-nvme0n1/snapshots ./scripts/criu_bench.py --name-filter <function name regex> --lang-filter <function language regex> --criu-mmap-only
+SNAPSHOT_DIR=/mnt/unused-nvme1n1/snapshots ./scripts/criu_bench.py --name-filter <function name regex> --lang-filter <function language regex> --criu-mmap-only
 
 # plot_e2e.py will plot results for whichever systems/functions are available in <result dir>
  ./scripts/plot_e2e.py <result dir>
