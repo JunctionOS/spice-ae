@@ -110,7 +110,7 @@ def main():
         if args.lang_filter:
             common += ["--lang-filter", args.lang_filter]
 
-        if not args.skip_blink:
+        if not args.skip_spice:
             run_bench([py, f"{SCRIPT_DIR}/spice_bench.py"] + common)
         if not args.skip_faasnap:
             run_bench(
@@ -124,7 +124,7 @@ def main():
             )
 
     blink_dir = (
-        None if (not args.source_dir and args.skip_blink) else latest("spice", base)
+        None if (not args.source_dir and args.skip_spice) else latest("spice", base)
     )
     faasnap_dir = (
         None if (not args.source_dir and args.skip_faasnap) else latest("faasnap", base)
