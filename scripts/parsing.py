@@ -6,8 +6,8 @@ from collections import defaultdict
 
 import numpy as np
 
-# Single config tag emitted by blink_tests.jifpager_restore_shelf
-BLINK_TAG = "itrees_jif_k"
+# Single config tag emitted by spice_tests.jifpager_restore_shelf
+SPICE_TAG = "itrees_jif_k"
 
 # CRIU run configs in preferred order for e2e plotting
 CRIU_CONFIGS = ["lazy_pages", "eager", "mmap_only", "mmap_only_no_cow"]
@@ -81,15 +81,15 @@ def get_kstats(fname: str, data, exp_n: str):
         pass
 
 
-def parse_blink_logs(result_dir: str, log_name: str = "restore_images"):
-    """Parse blink restore logs. Single config (all optimizations)."""
+def parse_spice_logs(result_dir: str, log_name: str = "restore_images"):
+    """Parse spice restore logs. Single config (all optimizations)."""
     out = defaultdict(dict)
-    log_path = f"{result_dir}/{log_name}_{BLINK_TAG}"
+    log_path = f"{result_dir}/{log_name}_{SPICE_TAG}"
 
     for prog, d in get_one_log(log_path).items():
-        out[prog][BLINK_TAG] = getstats(d)
+        out[prog][SPICE_TAG] = getstats(d)
 
-    get_kstats(f"{log_path}_kstats", out, BLINK_TAG)
+    get_kstats(f"{log_path}_kstats", out, SPICE_TAG)
     return out
 
 

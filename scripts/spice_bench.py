@@ -4,7 +4,7 @@ import atexit
 import os
 
 from args import ARGS
-from dirs import BLINK_SNAPSHOTS, REEXEC_DIR, SNAPSHOT_DIR
+from dirs import SPICE_SNAPSHOTS, REEXEC_DIR, SNAPSHOT_DIR
 from spice_test import TESTS, kill_iok
 from test import compile_tests
 from util import (
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     atexit.register(kill_iok)
     tests = compile_tests(TESTS)
 
-    for d in (SNAPSHOT_DIR, BLINK_SNAPSHOTS):
+    for d in (SNAPSHOT_DIR, SPICE_SNAPSHOTS):
         try:
             os.makedirs(d, exist_ok=True)
         except PermissionError:

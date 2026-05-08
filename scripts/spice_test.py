@@ -7,7 +7,7 @@ import psutil
 from args import ARGS
 from dirs import (
     BIN_DIR,
-    BLINK_SNAPSHOTS,
+    SPICE_SNAPSHOTS,
     CALADAN_DIR,
     CHROOT_DIR,
     FUNCTIONS,
@@ -100,7 +100,7 @@ def gen_lc_config(file, ip, mask, gw, cores, quantum=0):
         f.write("\n".join(cfg))
 
 
-class BlinkTest(Test):
+class SpiceTest(Test):
     def __init__(
         self,
         lang: str,
@@ -126,7 +126,7 @@ class BlinkTest(Test):
         if ARGS.use_chroot:
             return f"/tmp/{func_id}"
 
-        return f"{BLINK_SNAPSHOTS}/{func_id}"
+        return f"{SPICE_SNAPSHOTS}/{func_id}"
 
     def run(self, junction_args, cmd, log, result_dir):
         ip_alloc = IPAllocator()
@@ -351,7 +351,7 @@ class BlinkTest(Test):
             minio_helper.kill_minio_server()
 
 
-class PyFBenchTest(BlinkTest):
+class PyFBenchTest(SpiceTest):
     def __init__(self, name: str, s3=False):
         super().__init__(
             "python",
@@ -362,7 +362,7 @@ class PyFBenchTest(BlinkTest):
         )
 
 
-class JavaFBenchTest(BlinkTest):
+class JavaFBenchTest(SpiceTest):
     def __init__(self, name: str, s3=False):
         runner = f"{FUNCTIONS}/java/runner/"
         func = f"{FUNCTIONS}/java/{name}/"
@@ -391,7 +391,7 @@ class JavaFBenchTest(BlinkTest):
         )
 
 
-class NodeFBenchTest(BlinkTest):
+class NodeFBenchTest(SpiceTest):
     def __init__(self, name: str, s3=False):
         super().__init__(
             "node",

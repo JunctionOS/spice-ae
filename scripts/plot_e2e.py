@@ -6,9 +6,9 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 from parsing import (
-    BLINK_TAG,
+    SPICE_TAG,
     CRIU_CONFIGS,
-    parse_blink_logs,
+    parse_spice_logs,
     parse_criu_logs,
     parse_faasnap_logs,
 )
@@ -143,10 +143,10 @@ SECONDARY = {
 }
 
 
-def build_stack(key, blink_data, faasnap_data, criu_data):
+def build_stack(key, spice_data, faasnap_data, criu_data):
     fdata = faasnap_data.get("faasnap", {}).get(key)
     rdata = faasnap_data.get("reap", {}).get(key)
-    bdata = blink_data.get(key, {}).get(BLINK_TAG)
+    bdata = spice_data.get(key, {}).get(SPICE_TAG)
 
     def faasnap_stack(s):
         if not s:
@@ -168,7 +168,7 @@ def build_stack(key, blink_data, faasnap_data, criu_data):
         return [(0, "function"), (0, "restore")]
 
     if bdata:
-        blink = [
+        spice = [
             (bdata["cold_first_iter"], "function"),
             (
                 bdata["metadata_restore"] + bdata["fs_restore"] + bdata["data_restore"],
@@ -177,7 +177,7 @@ def build_stack(key, blink_data, faasnap_data, criu_data):
         ]
         warm = [(bdata["uncached_iter"], "function")]
     else:
-        blink = [(0, "function"), (0, "restore")]
+        spice = [(0, "function"), (0, "restore")]
         warm = [(0, "function")]
 
     return (
@@ -185,7 +185,7 @@ def build_stack(key, blink_data, faasnap_data, criu_data):
         faasnap_stack(fdata),
         faasnap_stack(rdata),
         criu_stack(criu_data.get(key)),
-        blink,
+        spice,
         warm,
     )
 
@@ -239,11 +239,11 @@ def plot_comparison(result_dir, data):
 
     fig.subplots_adjust(left=0.05, right=1.0)
 
-    blink_data = data.get("spice", {})
+    spice_data = data.get("spice", {})
     faasnap_data = data.get("faasnap", {})
     criu_data = data.get("criu", {})
 
-    stacks = [build_stack(k, blink_data, faasnap_data, criu_data) for k in FUNCTIONS]
+    stacks = [build_stack(k, spice_data, faasnap_data, criu_data) for k in FUNCTIONS]
 
     width = 0.2
     primary_heights = []
@@ -258,7 +258,7 @@ def plot_comparison(result_dir, data):
         lang_spans = secondary_lang_spans if is_secondary else primary_lang_spans
         x = 0
 
-        for workload, faasnap, reap, criu, blink, warm in stacks:
+        for workload, faasnap, reap, criu, spice, warm in stacks:
             in_secondary = workload in SECONDARY
             if is_secondary != in_secondary:
                 continue
@@ -268,7 +268,7 @@ def plot_comparison(result_dir, data):
                 "faasnap": int(sum(v for v, _ in faasnap)),
                 "reap": int(sum(v for v, _ in reap)),
                 "criu": int(sum(v for v, _ in criu)),
-                "spice": int(sum(v for v, _ in blink)),
+                "spice": int(sum(v for v, _ in spice)),
                 "warm": int(sum(v for v, _ in warm)),
             }
 
@@ -276,7 +276,7 @@ def plot_comparison(result_dir, data):
                 ("FaaSnap*", faasnap),
                 ("REAP*", reap),
                 ("CRIU*", criu),
-                ("Spice", blink),
+                ("Spice", spice),
                 ("Warm", warm),
             ]
             first_bar_x = x
@@ -379,7 +379,7 @@ def main():
 
     for d in args.dirs:
         data = {
-            "spice": parse_blink_logs(d, log_name=args.spice_log),
+            "spice": parse_spice_logs(d, log_name=args.spice_log),
             "faasnap": parse_faasnap_logs(os.path.join(d, args.faasnap_subdir)),
             "criu": parse_criu_logs(os.path.join(d, args.criu_subdir)),
         }

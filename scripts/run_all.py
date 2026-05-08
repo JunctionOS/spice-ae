@@ -49,13 +49,13 @@ def copy(src, dst):
         shutil.copy2(src, dst)
 
 
-def consolidate(e2e_dir, blink_dir, criu_dir, faasnap_dir):
+def consolidate(e2e_dir, spice_dir, criu_dir, faasnap_dir):
     os.makedirs(e2e_dir, exist_ok=True)
 
-    if blink_dir and os.path.isdir(blink_dir):
-        for fn in os.listdir(blink_dir):
+    if spice_dir and os.path.isdir(spice_dir):
+        for fn in os.listdir(spice_dir):
             if fn.startswith("restore_images_"):
-                copy(os.path.join(blink_dir, fn), os.path.join(e2e_dir, fn))
+                copy(os.path.join(spice_dir, fn), os.path.join(e2e_dir, fn))
 
     if criu_dir and os.path.isdir(criu_dir):
         out = os.path.join(criu_dir, "output")
@@ -123,7 +123,7 @@ def main():
                 + common
             )
 
-    blink_dir = (
+    spice_dir = (
         None if (not args.source_dir and args.skip_spice) else latest("spice", base)
     )
     faasnap_dir = (
@@ -137,7 +137,7 @@ def main():
     e2e_name = f"e2e.{ts}"
     e2e_dir = os.path.join(base, e2e_name)
 
-    consolidate(e2e_dir, blink_dir, criu_dir, faasnap_dir)
+    consolidate(e2e_dir, spice_dir, criu_dir, faasnap_dir)
 
     recent = os.path.join(base, "e2e.recent")
     if os.path.lexists(recent):

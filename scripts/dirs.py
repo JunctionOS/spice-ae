@@ -8,7 +8,7 @@ FAASNAP_DIR = f"{ROOT_DIR}/faasnap"
 
 SNAPSHOT_DIR = os.environ.get("SNAPSHOT_DIR", f"{ROOT_DIR}/snapshots")
 
-BLINK_SNAPSHOTS = os.environ.get("BLINK_SNAPSHOTS", f"{SNAPSHOT_DIR}/spice")
+SPICE_SNAPSHOTS = os.environ.get("SPICE_SNAPSHOTS", f"{SNAPSHOT_DIR}/spice")
 FAASNAP_SNAPSHOTS = os.environ.get("FAASNAP_SNAPSHOTS", f"{SNAPSHOT_DIR}/faasnap")
 CRIU_SNAPSHOTS = os.environ.get("CRIU_SNAPSHOTS", f"{SNAPSHOT_DIR}/criu")
 FAASNAP_LINUX = f"{BIN_DIR}/faasnap-linux.bin"
