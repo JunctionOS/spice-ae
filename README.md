@@ -47,10 +47,8 @@ for artifact evaluation. We have tested the artifact on a c6620 node with a
 Micron 7450 MAX NVMe SSD rated for 
 sequential 128KB reads of up to 6800 MB/s (1M IOPS 4K random read). The SSD used in the paper
 was a Crucial T705 rated at 13600 MB/s (1.4M IOPS 4K random read).
-CloudLab partitions default to 64GB so the profile will format/mount any available SSD
-capacity for snapshot storage. The filesystems are mounted at, for example `/mnt/unused-nvme1n1` for
-the remaining capacity of the first available NVMe SSD. Reviewers should create a directory for
-storing snapshots at one of these locations, e.g.
+Any available SSDs on the CloudLab instance will be formatted and mounted in /mnt. Reviewers should
+create a directory for storing snapshots at one of these locations, e.g.:
 
 ```
 sudo mkdir /mnt/unused-nvme1n1/snapshots; sudo chown $USER /mnt/unused-nvme1n1/snapshots
