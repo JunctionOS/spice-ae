@@ -6,7 +6,7 @@
 	url = https://github.com/bencw12/jiftools
 [submodule "criu"]
 	path = criu
-	url = git@github.com:bencw12/criu
+	url = https://github.com/bencw12/criu
 [submodule "node"]
 	path = node
 	url = https://github.com/joshuafried/node
