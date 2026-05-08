@@ -25,16 +25,16 @@ blink-ae/
 |   ├-- java                # Java functions
 |   ├-- node                # Node functions
 |   └── python              # Python functions
-├-- jifpager                # Kernel module for loading snapshots
+├-- reexec                  # Kernel module for loading snapshots
 ├-- jiftools                # Userspace tool for generating/editing/reading snapshots
 ├-- junction                # LibOS-based container system for executing functions
 ├-- node                    # Modified Node.js runtime to support freezing the GC
 └── scripts                 # Experiment and util scripts
 ```
 
-Blink's implementation is split between the `junction` and `jifpager` submodules. Junction [^1] is
+Blink's implementation is split between the `junction` and `reexec` submodules. Junction [^1] is
 a libOS container system responsible for generating snapshots and invoking 
-functions from a snapshot image. `jifpager` is a Linux 6.5.0 kernel module 
+functions from a snapshot image. `reexec` is a Linux 6.5.0 kernel module 
 containing the implementation of the the kernel-space snapshot loader.
 
 The paper compares Blink to CRIU [^2], REAP [^3] and FaaSnap [^4] which are contained in

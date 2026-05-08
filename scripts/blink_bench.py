@@ -5,7 +5,7 @@ import os
 
 from args import ARGS
 from blink_tests import TESTS, kill_iok
-from dirs import BLINK_SNAPSHOTS, JIFPAGER_DIR, SNAPSHOT_DIR
+from dirs import BLINK_SNAPSHOTS, REEXEC_DIR, SNAPSHOT_DIR
 from test import compile_tests
 from util import (
     get_result_dir,
@@ -55,7 +55,7 @@ if __name__ == "__main__":
             )
             exit(1)
 
-    run(f"cd {JIFPAGER_DIR}; ./install.sh; cd ..")
+    run(f"cd {REEXEC_DIR}; ./install.sh; cd ..")
     run(f"echo 256 | sudo tee /sys/kernel/jifpager/prefetch_sync_batch")
 
     setup_chroot()

@@ -9,7 +9,7 @@ VENV_DIR=${BIN_DIR}/venv
 JUNCTION_DIR=${ROOT_DIR}/junction
 FAASNAP_DIR=${ROOT_DIR}/faasnap
 JIFTOOLS_DIR=${ROOT_DIR}/jiftools
-JIFPAGER_DIR=${ROOT_DIR}/jifpager
+REEXEC_DIR=${ROOT_DIR}/reexec
 CRIU_DIR=${ROOT_DIR}/criu
 CHROOT_DIR=${ROOT_DIR}/chroot
 
@@ -76,14 +76,14 @@ pushd "$JIFTOOLS_DIR" >/dev/null
 cargo build --release
 popd >/dev/null
 
-# ---------------------------------------------------------------- 5. jifpager
-log "Building jifpager kernel module"
+# ---------------------------------------------------------------- 5. reexec
+log "Building reexec kernel module"
 if [ ! -d "/lib/modules/$(uname -r)/build" ]; then
     log "Installing kernel headers for $(uname -r)"
     sudo -E apt-get install -y "linux-headers-$(uname -r)" || \
         sudo -E apt-get install -y linux-headers-generic
 fi
-pushd "$JIFPAGER_DIR" >/dev/null
+pushd "$REEXEC_DIR" >/dev/null
 make -j"$(nproc)"
 popd >/dev/null
 
@@ -123,7 +123,7 @@ log "  bin/faasnap-fc         -> $([ -x ${BIN_DIR}/faasnap-fc ] && echo OK || ec
 log "  bin/faasnap-linux.bin  -> $([ -f ${BIN_DIR}/faasnap-linux.bin ] && echo OK || echo MISSING)"
 log "  faasnap daemon         -> $([ -x ${ROOT_DIR}/faasnap/main ] && echo OK || echo MISSING)"
 log "  jiftools/jiftool       -> $([ -x ${JIFTOOLS_DIR}/target/release/jiftool ] && echo OK || echo MISSING)"
-log "  jifpager.ko            -> $([ -f ${JIFPAGER_DIR}/jif_pager.ko ] && echo OK || echo MISSING)"
+log "  jifpager.ko            -> $([ -f ${REEXEC_DIR}/jif_pager.ko ] && echo OK || echo MISSING)"
 log "  criu                   -> $([ -x ${CRIU_DIR}/criu/criu ] && echo OK || echo MISSING)"
 log "  junction_run           -> $([ -x ${JUNCTION_DIR}/build/junction/junction_run ] && echo OK || echo MISSING)"
 log "  chroot                 -> $([ -d ${CHROOT_DIR}/usr ] && echo OK || echo MISSING)"

@@ -1,7 +1,3 @@
-[submodule "jifpager"]
-	path = jifpager
-	url = git@github.com:bencw12/jifpager.git
-	branch = stable
 [submodule "junction"]
 	path = junction
 	url = https://github.com/bencw12/junction
@@ -26,3 +22,6 @@
 [submodule "faasnap"]
 	path = faasnap
 	url = https://github.com/joshuafried/faasnap
+[submodule "reexec"]
+	path = reexec
+	url = https://github.com/bencw12/reexec
