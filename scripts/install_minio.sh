@@ -5,6 +5,7 @@ ROOT_DIR=${SCRIPT_DIR}/../
 BIN_DIR=${ROOT_DIR}/bin/
 
 export CTRD_ROOT=$1
+mkdir -p ${BIN_DIR}
 
 if ! [ -f $BIN_DIR/minio ]; then
     wget -O $BIN_DIR/minio https://dl.min.io/server/minio/release/linux-amd64/minio
