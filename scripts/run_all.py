@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Run blink, faasnap/reap, and CRIU benches and consolidate the artifacts
+"""Run spice, faasnap/reap, and CRIU benches and consolidate the artifacts
 into a single result dir that scripts/plot_e2e.py can read.
 
 Two modes:
   ./run_all.py                  run benches, then consolidate from RESULT_DIR
   ./run_all.py <results-dir>    skip benches, consolidate from <results-dir>'s
-                                {blink,faasnap,criu}.recent symlinks
+                                {spice,faasnap,criu}.recent symlinks
 """
 
 import argparse
@@ -78,18 +78,14 @@ def main():
     ap.add_argument(
         "source_dir",
         nargs="?",
-        help="Existing results dir holding {blink,faasnap,criu}.recent symlinks. "
+        help="Existing results dir holding {spice,faasnap,criu}.recent symlinks. "
         "If given, skip benches and only consolidate.",
     )
-    ap.add_argument("--skip-blink", action="store_true")
+    ap.add_argument("--skip-spice", action="store_true")
     ap.add_argument("--skip-faasnap", action="store_true")
     ap.add_argument("--skip-criu", action="store_true")
-    ap.add_argument(
-        "--name-filter", help="regex passed to each bench's --name-filter"
-    )
-    ap.add_argument(
-        "--lang-filter", help="regex passed to each bench's --lang-filter"
-    )
+    ap.add_argument("--name-filter", help="regex passed to each bench's --name-filter")
+    ap.add_argument("--lang-filter", help="regex passed to each bench's --lang-filter")
     ap.add_argument(
         "--criu-args",
         default="--criu-mmap-only",
@@ -115,7 +111,7 @@ def main():
             common += ["--lang-filter", args.lang_filter]
 
         if not args.skip_blink:
-            run_bench([py, f"{SCRIPT_DIR}/blink_bench.py"] + common)
+            run_bench([py, f"{SCRIPT_DIR}/spice_bench.py"] + common)
         if not args.skip_faasnap:
             run_bench(
                 [py, f"{SCRIPT_DIR}/faasnap_bench.py", "--do-faasnap", "--do-reap"]
@@ -127,9 +123,15 @@ def main():
                 + common
             )
 
-    blink_dir = None if (not args.source_dir and args.skip_blink) else latest("blink", base)
-    faasnap_dir = None if (not args.source_dir and args.skip_faasnap) else latest("faasnap", base)
-    criu_dir = None if (not args.source_dir and args.skip_criu) else latest("criu", base)
+    blink_dir = (
+        None if (not args.source_dir and args.skip_blink) else latest("spice", base)
+    )
+    faasnap_dir = (
+        None if (not args.source_dir and args.skip_faasnap) else latest("faasnap", base)
+    )
+    criu_dir = (
+        None if (not args.source_dir and args.skip_criu) else latest("criu", base)
+    )
 
     ts = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     e2e_name = f"e2e.{ts}"

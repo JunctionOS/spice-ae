@@ -55,7 +55,7 @@ def get_lbl(label):
 COLORS = {
     "function": "tab:blue",
     "restore": "tab:red",
-    "Blink": "darkorange",
+    "Spice": "darkorange",
     "REAP*": "crimson",
     "FaaSnap*": "tab:brown",
     "CRIU*": "violet",
@@ -65,7 +65,7 @@ COLORS = {
 HATCHES = {
     "REAP*": "//",
     "FaaSnap*": "\\\\",
-    "Blink": "xx",
+    "Spice": "xx",
     "CRIU*": "oo",
     "Warm": "",
 }
@@ -102,7 +102,7 @@ def plot_one_system(ax, x, d, title, split=None):
                 edgecolor="black",
             )
 
-    if title in ("Blink", "Warm"):
+    if title in ("Spice", "Warm"):
         text_str = str(int(val)) if int(val) > 1 else f"{val:.1f}"
         target = split if split is not None else ax
         text = target.text(
@@ -239,7 +239,7 @@ def plot_comparison(result_dir, data):
 
     fig.subplots_adjust(left=0.05, right=1.0)
 
-    blink_data = data.get("blink", {})
+    blink_data = data.get("spice", {})
     faasnap_data = data.get("faasnap", {})
     criu_data = data.get("criu", {})
 
@@ -268,7 +268,7 @@ def plot_comparison(result_dir, data):
                 "faasnap": int(sum(v for v, _ in faasnap)),
                 "reap": int(sum(v for v, _ in reap)),
                 "criu": int(sum(v for v, _ in criu)),
-                "blink": int(sum(v for v, _ in blink)),
+                "spice": int(sum(v for v, _ in blink)),
                 "warm": int(sum(v for v, _ in warm)),
             }
 
@@ -276,7 +276,7 @@ def plot_comparison(result_dir, data):
                 ("FaaSnap*", faasnap),
                 ("REAP*", reap),
                 ("CRIU*", criu),
-                ("Blink", blink),
+                ("Spice", blink),
                 ("Warm", warm),
             ]
             first_bar_x = x
@@ -352,18 +352,18 @@ def plot_comparison(result_dir, data):
         json.dump(data_copy, f, indent=4)
 
     for fn, vals in data_copy.items():
-        if vals["faasnap"] and vals["blink"]:
-            speedup = 100.0 * (vals["faasnap"] - vals["blink"]) / vals["faasnap"]
-            print(f"{fn}: blink {speedup:.1f}% faster than faasnap")
+        if vals["faasnap"] and vals["spice"]:
+            speedup = 100.0 * (vals["faasnap"] - vals["spice"]) / vals["faasnap"]
+            print(f"{fn}: spice {speedup:.1f}% faster than faasnap")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Plot Blink vs FaaSnap e2e latency")
+    parser = argparse.ArgumentParser(description="Plot e2e latency")
     parser.add_argument("dirs", nargs="+", help="result directories to plot")
     parser.add_argument(
-        "--blink-log",
+        "--spice-log",
         default="restore_images",
-        help="prefix of blink restore log files inside each result dir",
+        help="prefix of spice restore log files inside each result dir",
     )
     parser.add_argument(
         "--faasnap-subdir",
@@ -379,7 +379,7 @@ def main():
 
     for d in args.dirs:
         data = {
-            "blink": parse_blink_logs(d, log_name=args.blink_log),
+            "spice": parse_blink_logs(d, log_name=args.spice_log),
             "faasnap": parse_faasnap_logs(os.path.join(d, args.faasnap_subdir)),
             "criu": parse_criu_logs(os.path.join(d, args.criu_subdir)),
         }

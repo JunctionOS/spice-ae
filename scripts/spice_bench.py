@@ -4,8 +4,8 @@ import atexit
 import os
 
 from args import ARGS
-from blink_tests import TESTS, kill_iok
 from dirs import BLINK_SNAPSHOTS, REEXEC_DIR, SNAPSHOT_DIR
+from spice_test import TESTS, kill_iok
 from test import compile_tests
 from util import (
     get_result_dir,
@@ -29,7 +29,7 @@ def generate_plots(result_dir: str):
 
 
 def main(tests):
-    result_dir = get_result_dir(name="blink")
+    result_dir = get_result_dir(name="spice")
     if ARGS.redo_snapshot:
         for app in tests:
             app.generate_images(f"{result_dir}/generate_images", result_dir)
