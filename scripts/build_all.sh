@@ -30,7 +30,7 @@ sudo -E apt-get install -y \
     python3-protobuf libnet-dev libnl-3-dev libnl-route-3-dev \
     libbsd0 libbsd-dev libcap-dev libaio-dev python3-yaml \
     asciidoc xmlto libdrm-dev libgnutls28-dev libnftables-dev \
-    iproute2 acl \
+    iproute2 acl cpuid \
     curl wget git docker.io debootstrap libseccomp-dev python3-pip
 python3 -m pip install psutil minio --break-system-packages
 
