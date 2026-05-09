@@ -82,13 +82,14 @@ def plot_one_system(ax, x, d, title, split=None):
     if split is not None:
         target_axes.append(split)
 
+    label = get_lbl(title)
     for a in target_axes:
         a.bar(
             x,
             val,
             width=width,
             color=COLORS.get(title),
-            label=get_lbl(title),
+            label=label,
             hatch=HATCHES[title],
             edgecolor="black",
         )
