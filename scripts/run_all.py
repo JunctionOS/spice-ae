@@ -16,7 +16,7 @@ import subprocess
 import sys
 from datetime import datetime
 
-from dirs import RESULT_DIR, SCRIPT_DIR
+from dirs import RESULT_DIR, SCRIPT_DIR, BIN_DIR
 
 
 def run_bench(cmd, env=None):
@@ -103,7 +103,7 @@ def main():
             sys.exit(1)
     else:
         base = RESULT_DIR
-        py = sys.executable
+        py = f"{BIN_DIR}/venv/bin/python3"
         common = []
         if args.name_filter:
             common += ["--name-filter", args.name_filter]
@@ -150,7 +150,7 @@ def main():
         print(f"  {fn}")
 
     if not args.no_plot:
-        run_bench([sys.executable, f"{SCRIPT_DIR}/plot_e2e.py", e2e_dir])
+        run_bench([f"{BIN_DIR}/venv/bin/python3", f"{SCRIPT_DIR}/plot_e2e.py", e2e_dir])
 
 
 if __name__ == "__main__":
