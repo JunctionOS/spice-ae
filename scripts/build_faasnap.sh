@@ -9,6 +9,8 @@ FAASNAP_FC_DIR=${ROOT_DIR}/firecracker
 BIN_DIR=${ROOT_DIR}/bin/
 GUEST_DIR=${ROOT_DIR}/faasnap/rootfs/guest
 
+FAASNAP_ROOTFS=${FAASNAP_ROOTFS:-${FAASNAP_DIR}/rootfs}
+
 set -x
 
 mkdir -p ${BIN_DIR}
@@ -38,7 +40,7 @@ sudo chown ${USER} ${FAASNAP_ROOTFS}
 
 make -C ./rootfs debian-rootfs.ext4 OUTDIR=${FAASNAP_ROOTFS}
 
-sudo mount debian-rootfs.ext4 ${FAASNAP_ROOTFS}/mountpoint
+sudo mount ${FAASNAP_ROOTFS}/debian-rootfs.ext4 ${FAASNAP_ROOTFS}/mountpoint
 sudo mkdir -p ${FAASNAP_ROOTFS}/mountpoint/$FUNCTIONS_DIR
 sudo cp -r $FUNCTIONS_DIR/data ${FAASNAP_ROOTFS}/mountpoint/$FUNCTIONS_DIR/
 sudo umount ${FAASNAP_ROOTFS}/mountpoint
@@ -47,7 +49,7 @@ popd
 
 # build faasnap guest kernel
 pushd $FAASNAP_LINUX_DIR
-docker run -it --rm -v "$(pwd)":/workspace -w /workspace ubuntu:18.04 /bin/bash -c "
+docker run --rm -v "$(pwd)":/workspace -w /workspace ubuntu:18.04 /bin/bash -c "
   set -x
   apt-get update && apt-get install -y \
   build-essential \

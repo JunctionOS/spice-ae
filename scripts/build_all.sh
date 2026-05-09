@@ -18,6 +18,9 @@ FAASNAP_ROOTFS=${FAASNAP_ROOTFS:-${FAASNAP_DIR}/rootfs}
 export FAASNAP_ROOTFS=${FAASNAP_ROOTFS}
 export DEBIAN_FRONTEND=noninteractive
 
+PARALLEL_MODE=false
+[[ "$1" == "-p" ]] && PARALLEL_MODE=true
+
 log() { printf '\n\033[1;36m[build_all]\033[0m %s\n' "$*"; }
 
 # ---------------------------------------------------------------- 1. apt deps
@@ -32,7 +35,6 @@ sudo -E apt-get install -y \
     asciidoc xmlto libdrm-dev libgnutls28-dev libnftables-dev \
     iproute2 acl cpuid \
     curl wget git docker.io debootstrap libseccomp-dev python3-pip
-python3 -m pip install psutil minio --break-system-packages
 
 # rust (needed for jiftools); install via rustup if missing
 if ! command -v cargo >/dev/null 2>&1; then
@@ -48,6 +50,16 @@ if [ -f "$HOME/.cargo/env" ]; then
     source "$HOME/.cargo/env"
 fi
 
+run_task() {
+    if [ "$PARALLEL_MODE" = true ]; then
+        # Run in background
+        "$@" &
+    else
+        # Run serially
+        "$@"
+    fi
+}
+
 # ---------------------------------------------------------------- 2. submodules
 log "Initializing submodules (uninitialized only)"
 pushd "$ROOT_DIR" >/dev/null
@@ -61,19 +73,26 @@ else
 fi
 popd >/dev/null
 
+
 # ---------------------------------------------------------------- 3. junction
 log "Building junction (install + build)"
 pushd "$JUNCTION_DIR" >/dev/null
+
+build_all_junction() {
+	./scripts/install.sh && scripts/build.sh
+}
+
 if [ ! -f "${JUNCTION_DIR}/.install_script_ran" ]; then
-    ./scripts/install.sh
+    run_task build_all_junction
+else
+    run_task ./scripts/build.sh
 fi
-./scripts/build.sh
 popd >/dev/null
 
 # ---------------------------------------------------------------- 4. jiftools
 log "Building jiftools (cargo --release)"
 pushd "$JIFTOOLS_DIR" >/dev/null
-cargo build --release
+run_task cargo build --release
 popd >/dev/null
 
 # ---------------------------------------------------------------- 5. reexec
@@ -90,29 +109,36 @@ popd >/dev/null
 # ---------------------------------------------------------------- 6. criu
 log "Building CRIU"
 pushd "$CRIU_DIR" >/dev/null
-make -j"$(nproc)"
-gcc -shared -fPIC -o block_io_uring.so block_iouring.c -lseccomp
+build_criu() {
+	make -j"$(nproc)" && gcc -shared -fPIC -o block_io_uring.so block_iouring.c -lseccomp
+}
+run_task build_criu
 popd >/dev/null
 
 # ---------------------------------------------------------------- 7. functions
 log "Building user functions (./scripts/build_functions.sh)"
-"${SCRIPT_DIR}/build_functions.sh"
+run_task "${SCRIPT_DIR}/build_functions.sh"
 
 # ---------------------------------------------------------------- 8. faasnap
 log "Building faasnap stack (./scripts/build_faasnap.sh)"
-"${SCRIPT_DIR}/build_faasnap.sh"
+run_task "${SCRIPT_DIR}/build_faasnap.sh"
 
 # ---------------------------------------------------------------- 9. minio
 log "Installing minio"
 mkdir -p "$BIN_DIR"
-"${SCRIPT_DIR}/install_minio.sh"
+run_task "${SCRIPT_DIR}/install_minio.sh"
 
 # ---------------------------------------------------------------- 10. chroot
 log "Setting up chroot at ${CHROOT_DIR}"
 if [ -d "$CHROOT_DIR" ] && [ -n "$(ls -A "$CHROOT_DIR" 2>/dev/null)" ]; then
     log "chroot already populated; skipping (rm -rf ${CHROOT_DIR} to rebuild)"
 else
-    "${SCRIPT_DIR}/install_chroot.sh"
+    run_task "${SCRIPT_DIR}/install_chroot.sh"
+fi
+
+if [ "$PARALLEL_MODE" = true ]; then
+    echo "Waiting for parallel builds to complete..."
+    wait
 fi
 
 log "All components built."
