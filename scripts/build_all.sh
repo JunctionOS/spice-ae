@@ -19,7 +19,7 @@ export FAASNAP_ROOTFS=${FAASNAP_ROOTFS}
 export DEBIAN_FRONTEND=noninteractive
 
 PARALLEL_MODE=false
-[[ "$1" == "-p" ]] && PARALLEL_MODE=true
+[[ "${1:-}" == "-p" ]] && PARALLEL_MODE=true
 
 log() { printf '\n\033[1;36m[build_all]\033[0m %s\n' "$*"; }
 
