@@ -15,7 +15,6 @@ from dirs import (
     JRUN,
     NODE_BIN,
     NODE_PATH,
-    READJIF,
 )
 from func_args import FUNCTION_ARGS
 from ip_alloc import IPAllocator, addr_to_str
@@ -24,6 +23,16 @@ from util import dropcache, jifpager_installed, run
 
 KTHREADS_PER_INSTANCE = 1
 KERNEL_TRACE_RUNS = 20
+
+
+def read_ord_pages(jif_path: str) -> int:
+    output = run(f"{JIFTOOL} read {jif_path} ord").decode("utf-8")
+    for line in output.splitlines():
+        key, sep, value = line.partition(":")
+        if sep and key.strip() == "pages":
+            return int(value.strip())
+
+    raise ValueError(f"failed to find ord page count in output: {output}")
 
 
 def get_allowed_cores():
@@ -158,22 +167,27 @@ class SpiceTest(Test):
     def build_itree(self, output_log: str):
         prefix = self.snapshot_prefix(with_chroot=True)
         chroot_dir = CHROOT_DIR if ARGS.use_chroot else ""
+        chroot_arg = f" {chroot_dir}" if chroot_dir else ""
 
         run(
-            f'stdbuf -e0 -i0 -o0 {JIFTOOL} {prefix}.jif "build-itrees {chroot_dir}" "write {prefix}_itrees.jif" >> {output_log}_build_itrees 2>&1'
+            f"stdbuf -e0 -i0 -o0 {JIFTOOL} modify {prefix}.jif {prefix}_itrees.jif build-itrees{chroot_arg} >> {output_log}_build_itrees 2>&1"
         )
 
     def add_access_trace(self, output_log: str, itrees: bool = True):
         itrees_str = "_itrees" if itrees else ""
         prefix = self.snapshot_prefix(with_chroot=True)
-
-        jiftool_cmds = (
-            f'"add-ord {prefix}.ord" tag-vmas "write {prefix}{itrees_str}_ord.jif" '
-            f'setup-prefetch tag-vmas "write {prefix}{itrees_str}_ord_reorder.jif" '
-        )
+        input_jif = f"{prefix}{itrees_str}.jif"
+        ord_jif = f"{prefix}{itrees_str}_ord.jif"
+        reorder_jif = f"{prefix}{itrees_str}_ord_reorder.jif"
+        tmp_add_ord = f"{prefix}{itrees_str}_tmp_add_ord.jif"
+        tmp_prefetch = f"{prefix}{itrees_str}_tmp_prefetch.jif"
 
         run(
-            f"stdbuf -e0 -i0 -o0 {JIFTOOL} {prefix}{itrees_str}.jif {jiftool_cmds} >> {output_log}_add_ord 2>&1"
+            f"stdbuf -e0 -i0 -o0 {JIFTOOL} modify {input_jif} {tmp_add_ord} add-ord {prefix}.ord >> {output_log}_add_ord 2>&1 && "
+            f"stdbuf -e0 -i0 -o0 {JIFTOOL} modify {tmp_add_ord} {ord_jif} tag-vmas >> {output_log}_add_ord 2>&1 && "
+            f"stdbuf -e0 -i0 -o0 {JIFTOOL} modify {ord_jif} {tmp_prefetch} setup-prefetch >> {output_log}_add_ord 2>&1 && "
+            f"stdbuf -e0 -i0 -o0 {JIFTOOL} modify {tmp_prefetch} {reorder_jif} tag-vmas >> {output_log}_add_ord 2>&1; "
+            f"status=$?; rm -f {tmp_add_ord} {tmp_prefetch}; exit $status"
         )
 
     def do_kernel_trace(self, output_log: str, result_dir: str):
@@ -196,10 +210,7 @@ class SpiceTest(Test):
             run(f"sudo cat /sys/kernel/debug/jifpager/mem_trace {path}.ord > /tmp/ord")
             run(f"sort -n /tmp/ord | sudo tee {path}.ord > /dev/null")
             self.add_access_trace(output_log)
-            ws_pages = run(f"{READJIF} {path}_itrees_ord_reorder.jif ord.pages").decode(
-                "utf-8"
-            )
-            ws_pages = json.loads(ws_pages)["ord.pages"]
+            ws_pages = read_ord_pages(f"{path}_itrees_ord_reorder.jif")
             if ws_pages == last_ws_count:
                 n_unchanged += 1
             else:

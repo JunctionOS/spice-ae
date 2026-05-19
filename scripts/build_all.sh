@@ -8,7 +8,7 @@ BIN_DIR=${ROOT_DIR}/bin
 VENV_DIR=${BIN_DIR}/venv
 JUNCTION_DIR=${ROOT_DIR}/junction
 FAASNAP_DIR=${ROOT_DIR}/faasnap
-JIFTOOLS_DIR=${ROOT_DIR}/jiftools
+SHELFTOOLS_DIR=${ROOT_DIR}/shelftools
 REEXEC_DIR=${ROOT_DIR}/reexec
 CRIU_DIR=${ROOT_DIR}/criu
 CHROOT_DIR=${ROOT_DIR}/chroot
@@ -36,7 +36,7 @@ sudo -E apt-get install -y \
     iproute2 acl cpuid \
     curl wget git docker.io debootstrap libseccomp-dev python3-pip
 
-# rust (needed for jiftools); install via rustup if missing
+# rust (needed for shelftools); install via rustup if missing
 if ! command -v cargo >/dev/null 2>&1; then
     log "Installing rust toolchain via rustup"
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
@@ -89,9 +89,9 @@ else
 fi
 popd >/dev/null
 
-# ---------------------------------------------------------------- 4. jiftools
-log "Building jiftools (cargo --release)"
-pushd "$JIFTOOLS_DIR" >/dev/null
+# ---------------------------------------------------------------- 4. shelftools
+log "Building shelftools (cargo --release)"
+pushd "$SHELFTOOLS_DIR" >/dev/null
 run_task cargo build --release
 popd >/dev/null
 
@@ -148,7 +148,7 @@ log "  bin/minio              -> $([ -x ${BIN_DIR}/minio ] && echo OK || echo MI
 log "  bin/faasnap-fc         -> $([ -x ${BIN_DIR}/faasnap-fc ] && echo OK || echo MISSING)"
 log "  bin/faasnap-linux.bin  -> $([ -f ${BIN_DIR}/faasnap-linux.bin ] && echo OK || echo MISSING)"
 log "  faasnap daemon         -> $([ -x ${ROOT_DIR}/faasnap/main ] && echo OK || echo MISSING)"
-log "  jiftools/jiftool       -> $([ -x ${JIFTOOLS_DIR}/target/release/jiftool ] && echo OK || echo MISSING)"
+log "  shelftools/jiftool       -> $([ -x ${SHELFTOOLS_DIR}/target/release/jiftool ] && echo OK || echo MISSING)"
 log "  jifpager.ko            -> $([ -f ${REEXEC_DIR}/jif_pager.ko ] && echo OK || echo MISSING)"
 log "  criu                   -> $([ -x ${CRIU_DIR}/criu/criu ] && echo OK || echo MISSING)"
 log "  junction_run           -> $([ -x ${JUNCTION_DIR}/build/junction/junction_run ] && echo OK || echo MISSING)"
