@@ -1,9 +1,9 @@
 [submodule "junction"]
 	path = junction
 	url = https://github.com/bencw12/junction
-[submodule "jiftools"]
-	path = jiftools
-	url = https://github.com/bencw12/jiftools
+[submodule "shelftools"]
+	path = shelftools
+	url = https://github.com/JunctionOS/shelftools
 [submodule "criu"]
 	path = criu
 	url = https://github.com/bencw12/criu

@@ -26,7 +26,7 @@ spice-ae/
 |   ├-- node                # Node functions
 |   └── python              # Python functions
 ├-- reexec                  # Kernel module for loading snapshots
-├-- jiftools                # Userspace tool for generating/editing/reading snapshots
+├-- shelftools              # Userspace tool for generating/editing/reading snapshots
 ├-- junction                # LibOS-based container system for executing functions
 ├-- node                    # Modified Node.js runtime to support freezing the GC
 └── scripts                 # Experiment and util scripts
