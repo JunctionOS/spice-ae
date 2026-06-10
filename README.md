@@ -66,7 +66,7 @@ newgrp docker
 ```
 
 The following builds all systems/dependencies and runs a simple helloworld function as a minimal starting example. These instructions assume
-a snapshot directory has been created at `/mnt/unused-nvme1n1/snapshots`. The build takes ~30 minutes and requires ~70GB of disk space (not including snapshot files).
+a snapshot directory has been created at `/mnt/unused-nvme1n1/snapshots`. The build takes ~30 minutes and requires ~20GB of disk space (not including snapshot files).
 
 > [!NOTE]
 > CloudLab rootfs partitions default to 64GB. To avoid running out of space, either run `sudo RESIZEROOT=128 /opt/setup-grow-rootfs.sh` to resize to 128GB, or
