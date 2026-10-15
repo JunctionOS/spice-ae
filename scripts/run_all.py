@@ -92,6 +92,11 @@ def main():
         help="extra args forwarded to criu_bench.py (mode flags)",
     )
     ap.add_argument(
+        "--cold-uarch",
+        action="store_true",
+        help="flush CPU caches before the warm invocation (passed to spice_bench.py)",
+    )
+    ap.add_argument(
         "--no-plot", action="store_true", help="skip running plot_e2e.py at the end"
     )
     args = ap.parse_args()
@@ -111,7 +116,8 @@ def main():
             common += ["--lang-filter", args.lang_filter]
 
         if not args.skip_spice:
-            run_bench([py, f"{SCRIPT_DIR}/spice_bench.py"] + common)
+            spice_args = ["--cold-uarch"] if args.cold_uarch else []
+            run_bench([py, f"{SCRIPT_DIR}/spice_bench.py"] + common + spice_args)
         if not args.skip_faasnap:
             run_bench(
                 [py, f"{SCRIPT_DIR}/faasnap_bench.py", "--do-faasnap", "--do-reap"]

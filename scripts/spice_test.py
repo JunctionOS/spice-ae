@@ -145,9 +145,6 @@ class SpiceTest(Test):
         )
         prefix = self.snapshot_prefix()
 
-        if ARGS.cold_uarch:
-            junction_args += " --bench_cold_uarch_state"
-
         self.run(
             f"{junction_args} {chroot_args()} --jif --madv_remap --snapshot-prefix {prefix}",
             self.cmd,
@@ -286,6 +283,7 @@ class SpiceTest(Test):
         cow: bool = False,
         parallel: bool = False,
         prefetch_direct: bool = True,
+        cold_uarch: bool = False,
     ):
         config_jifpager(
             prefault=prefault,
@@ -307,6 +305,9 @@ class SpiceTest(Test):
 
         restore_args = self.args
         junction_args = f"--function_arg '{restore_args}' --function_name {self.id()}"
+        if cold_uarch:
+            # read by RunRestored: flush caches before the second request
+            junction_args += " --bench_cold_uarch_state"
         prefix = self.snapshot_prefix()
 
         self.run(
@@ -345,6 +346,7 @@ class SpiceTest(Test):
                 cow=True,
                 parallel=True,
                 prefetch_direct=True,
+                cold_uarch=ARGS.cold_uarch,
             )
 
         if self.s3:
